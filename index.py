@@ -8,8 +8,8 @@ def add_entry(project: str, activity: str, time: str):
         minutes = parse_time(time)
         time_logs.append({"project": project, "activity": activity, "minutes": minutes})
         print(f"Added: {activity} ({project}) - {time}")
-    except ValueError:
-        print("Invalid time format. Use '25m' or '1h 05m'.")
+    except ValueError as e:
+        print(f"Invalid time format. Use '25m' or '1h 05m'. Error: {e}")
 
 
 def parse_time(time: str):
@@ -31,8 +31,6 @@ def parse_time(time: str):
         if total not in [25, 30, 35, 40, 45]:
             raise ValueError("Pomodoro must be 25, 30, 35, 40, or 45 minutes")
 
-        total = int(time)
-
     if total <= 0:
         raise ValueError("Time must be positive")
     return total
@@ -52,8 +50,10 @@ def print_summary():
         project_totals[entry["project"]] = (
             project_totals.get(entry["project"], 0) + entry["minutes"]
         )
+    print("\nActivity Summary:")
     for activity, minutes in activity_totals.items():
         print(f"{activity}: {minutes // 60}h {minutes % 60:02d}m")
+    print("\nProject Summary:")
     for project, minutes in project_totals.items():
         print(f"Project {project}: {minutes // 60}h {minutes % 60:02d}m")
 

@@ -1,11 +1,21 @@
-# time-tracker
+# Time Tracker
 
-Basic backend for a time tracker app
+A CLI tool to log time spent on activities and projects.
 
-Run with `python index.py`
+## About
 
-# Commands
+This is a basic backend for tracking time, associating activities with projects, and calculating totals. It supports pomodoro sessions (25, 30, 35, 40, 45 minutes) and custom durations (e.g., "1h 05m").
 
-_add_: add a time entry specifying project, activity and time \
-_summary_: display all the current time entries \
-_quit_: exit the program.
+## Installation
+
+1. Clone the repository: `git clone https://github.com/FelipeMejia/time-tracker.git`
+2. Navigate to the folder: `cd time-tracker`
+3. Run the script: `python index.py`
+
+## Usage
+
+- Start the program with `python index.py`.
+- Choose an action:
+  - `add`: Log a new entry. Enter project name, activity name, and time (e.g., "25m" or "1h 05m").
+  - `summary`: prints all the time entries with its project and activiy.
+  - `quit`: exits the app
