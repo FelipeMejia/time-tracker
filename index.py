@@ -1,5 +1,6 @@
 import re
 import json
+from datetime import datetime
 
 time_logs: list[dict] = []
 
@@ -67,15 +68,28 @@ def print_summary():
 def save_entry(activity, project, time):
     """Saves a time entry locally in a JSON"""
     try:
+        previous_logs = []
+
         # Get logs history
-        with open("time_entries.json", "r") as json_file:
-            previous_logs = json.load(json_file)
+        try:
+            with open("time_entries.json", "r") as json_file:
+                previous_logs = json.load(json_file)
+        except FileNotFoundError:
+            pass
+
+        now = datetime.now()
+        formatted_now = now.strftime("%H:%M %d-%m-%Y")
+        time_entry = {
+            "activity": activity,
+            "project": project,
+            "time": time,
+            "date": formatted_now,
+        }
+        previous_logs.append(time_entry)
 
         # Add a new Entry
         with open("time_entries.json", "w", encoding="utf-8") as json_file:
-            time_entry = {"activity": activity, "project": project, "time": time}
-            previous_logs.append(time_entry)
-            json.dump(previous_logs, json_file)
+            json.dump(previous_logs, json_file, indent=4)
 
     except TypeError as e:
         print("Error:", e)
