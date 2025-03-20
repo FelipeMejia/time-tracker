@@ -1,4 +1,5 @@
 import re
+import json
 
 time_logs: list[dict] = []
 
@@ -8,6 +9,10 @@ def add_entry(project: str, activity: str, time: str):
     try:
         minutes = parse_time(time)
         time_logs.append({"project": project, "activity": activity, "minutes": minutes})
+
+        # Save time_logs in a file
+        save_entry(activity, project, time)
+
         print(f"Added: {activity} ({project}) - {time}")
     except ValueError as e:
         print(f"Invalid time format. Use '25m' or '1h 05m'. Error: {e}")
@@ -59,16 +64,39 @@ def print_summary():
         print(f"Project {project}: {minutes // 60}h {minutes % 60:02d}m")
 
 
+def save_entry(activity, project, time):
+    """Saves a time entry locally in a JSON"""
+    try:
+        # Get logs history
+        with open("time_entries.json", "r") as json_file:
+            previous_logs = json.load(json_file)
+
+        # Add a new Entry
+        with open("time_entries.json", "w", encoding="utf-8") as json_file:
+            time_entry = {"activity": activity, "project": project, "time": time}
+            previous_logs.append(time_entry)
+            json.dump(previous_logs, json_file)
+
+    except TypeError as e:
+        print("Error:", e)
+
+
 while True:
-    action = input("Enter action (add/summary/quit): ").lower()
+    # action = input("Enter action (add/summary/quit): ").lower()
+    action = "add"
     if action == "quit":
         print("Goodbye.")
         break
     elif action == "add":
-        project = input("Enter the project related: ").strip()
-        activity = input("Enter an activity: ").strip()
-        time = input("Enter time (e.g., '25m' or '1h 05m'): ").strip()
-        add_entry(project, activity, time)
+        # project = input("Enter the project related: ").strip()
+        # activity = input("Enter an activity: ").strip()
+        # time = input("Enter time (e.g., '25m' or '1h 05m'): ").strip()
+        add_entry(
+            project="Python time tracker",
+            activity="Studying JSON module",
+            time="2h 40m",
+        )
+        break
     elif action == "summary":
         print_summary()
     else:
