@@ -2,28 +2,38 @@ import re
 import json
 from datetime import datetime
 
-time_logs: list[dict] = []
-
 
 def add_entry(project: str, activity: str, time: str):
     """Add a time entry with project, activity, and duration."""
     try:
         minutes = parse_time(time)
-        time_logs.append({"project": project, "activity": activity, "minutes": minutes})
 
         # Save time_logs in a file
-        save_entry(activity, project, time)
+        save_entry(activity, project, minutes)
 
         print(f"Added: {activity} ({project}) - {time}")
     except ValueError as e:
         print(f"Invalid time format. Use '25m' or '1h 05m'. Error: {e}")
 
 
+def load_logs():
+    """Returns the previously saved logs if any"""
+    previous_logs = []
+
+    try:
+        with open("time_entries.json", "r") as json_file:
+            previous_logs = json.load(json_file)  # Load locally saved logs
+    except FileNotFoundError:
+        pass
+
+    return previous_logs
+
+
 def parse_time(time: str):
     """Parse time string to minutes (e.g., '25m' or '1h 05m')."""
     time = time.strip().lower()
     if re.search(r"[hm]", time):
-        match = re.search(r"(?:(\d+)h)?(?:(\d+)m)?$", time)
+        match = re.search(r"(?:(\d+)h)?\s*(?:(\d+)m)?", time)
         if not match:
             raise ValueError("Invalid format")
         hours = int(match.group(1)) if match.group(1) else 0
@@ -45,6 +55,7 @@ def parse_time(time: str):
 
 def print_summary():
     """Print total time per activity and project."""
+    time_logs = load_logs()
     if not time_logs:
         print("No entries yet.")
         return
@@ -68,23 +79,17 @@ def print_summary():
 def save_entry(activity, project, time):
     """Saves a time entry locally in a JSON"""
     try:
-        previous_logs = []
-
-        # Get logs history
-        try:
-            with open("time_entries.json", "r") as json_file:
-                previous_logs = json.load(json_file)
-        except FileNotFoundError:
-            pass
+        previous_logs = load_logs()
 
         now = datetime.now()
         formatted_now = now.strftime("%H:%M %d-%m-%Y")
         time_entry = {
             "activity": activity,
             "project": project,
-            "time": time,
+            "minutes": time,
             "date": formatted_now,
         }
+
         previous_logs.append(time_entry)
 
         # Add a new Entry
@@ -96,21 +101,19 @@ def save_entry(activity, project, time):
 
 
 while True:
-    # action = input("Enter action (add/summary/quit): ").lower()
-    action = "add"
+    action = input("Enter action (add/summary/quit): ").lower()
     if action == "quit":
         print("Goodbye.")
         break
     elif action == "add":
-        # project = input("Enter the project related: ").strip()
-        # activity = input("Enter an activity: ").strip()
-        # time = input("Enter time (e.g., '25m' or '1h 05m'): ").strip()
+        project = input("Enter the project related: ").strip()
+        activity = input("Enter an activity: ").strip()
+        time = input("Enter time (e.g., '25m' or '1h 05m'): ").strip()
         add_entry(
-            project="Python time tracker",
-            activity="Studying JSON module",
-            time="2h 40m",
+            project,
+            activity,
+            time,
         )
-        break
     elif action == "summary":
         print_summary()
     else:
